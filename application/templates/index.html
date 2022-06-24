@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Items</title>
+    </head>
+    <body style="text-align: center">
+	<div class='ItemsList'>
+        <h1>Items</h1>
+	<table>
+        <!-- SET UP THE TEMPLATE TO USE VALUES FROM THE DATABASE -->
+		<tr>
+			<th>Name</th>
+			<th>Value</th>
+			<th>Boolean</th>
+			<th></th>
+		</tr>
+	{% for item in template_items %}
+	<tr>
+		<td><a href="item/{{item.item_id}}">{{item.item_name}}</a></td>
+        <td>{{item.item_value}}</td>
+        <td>{{item.item_boolean}}</td>
+        <td></td>
+	</tr>
+	{% endfor %}
+	<tr>
+        <!-- SET UP THE FORM TO ADD ITEMS -->
+        <form method="POST" action=''>
+		<td>{{template_addItem_form.form_item_name}}</td>
+        <td>{{template_addItem_form.form_item_value}}</td>
+        <td>{{template_addItem_form.form_item_boolean}}</td>
+        <td>{{template_addItem_form.form_item_submit_add}}</td>
+        </form>
+	</tr>
+	</table>
+	</div>
+    </body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ template_editItem_form.item_name }}</title>
+    </head>
+    <body style="text-align: center">
+        <form method="POST" action="">
+        {{template_editItem_form.form_item_name}}
+        {{template_editItem_form.form_item_value}}
+        {{template_editItem_form.form_item_boolean}}
+        {{template_editItem_form.form_item_submit_edit}}
+        {{template_editItem_form.form_item_submit_delete}}
+        </form>
+        <a href="/item/{{template_pass_id}}">Back</a>
+    </body>
+</html>

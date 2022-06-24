@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ template_item.item_name }}</title>
+    </head>
+    <body style="text-align: center">
+	<div class='ItemsList'>
+		<!-- USE THE QUERY TO DISPLAY THE ITEM ATTRIBUTES-->
+        <h1>{{ template_item.item_name }}</h1>
+		<a href="edititem/{{template_item.item_id}}">Edit Item</a>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Value</th>
+			<th>Boolean</th>
+			<th></th>
+		</tr>
+	{% for item in template_item_attrs %}
+	<tr>
+		<td><a href="edititemattr/{{item.itemAttr_id}}">{{item.itemAttr_name}}</a></td>
+		<td> {{item.itemAttr_value}}</td>
+		<td>{{item.itemAttr_boolean}}</td>
+		<td></td>
+	</tr>
+	{% endfor %}
+	<tr>
+		<form method="POST" action="">
+		<td>{{template_addItemAttr_form.form_itemAttr_name}}</td>
+		<td>{{template_addItemAttr_form.form_itemAttr_value}}</td>
+		<td>{{template_addItemAttr_form.form_itemAttr_boolean}}</td>
+		<td>{{template_addItemAttr_form.form_itemAttr_submit}}</td>
+		</form>
+	</tr>
+	</table>
+	<a href="/">Back</a>
+	</div>
+    </body>
+</html>
