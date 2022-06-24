@@ -3,9 +3,11 @@ from application.models import Items,ItemAttributes
 from flask import render_template, redirect, url_for, request
 from application.forms import ManipItem, ManipItemAttributes
 
+# function to query items table
 def queryItem(itemid):
     return Items.query.filter_by(item_id=itemid).first()
 
+#function to query item attributes table
 def queryItemAttr(itemattid):
     return ItemAttributes.query.filter_by(itemAttr_id=itemattid).first()
 
@@ -13,12 +15,15 @@ def queryItemAttr(itemattid):
 def front():
     # associate form, as this is used in the POST and also the render it needs to happen up here
     route_add_item_form = ManipItem()
-    # pass to jinja and render
+    
+    # logic if we've added an item
     if request.method == 'POST':
+        # slurp values from the form into the db object
         add_values_from_form = Items(item_name=route_add_item_form.form_item_name.data,
                         item_value=route_add_item_form.form_item_value.data,
                         item_boolean = route_add_item_form.form_item_boolean.data
                         )
+        # add and commit
         db.session.add(add_values_from_form)
         db.session.commit()
         return redirect(url_for('front'))
@@ -33,27 +38,38 @@ def front():
 
 @app.route('/item/edititem/<int:id>', methods = ['GET','POST','DELETE'])
 def edititem(id):
+    # need to set up the form AND the query as they're needed in for 
+    # the update in the POST and also the render
     route_edit_item_form = ManipItem()
     queried_item = queryItem(id)
+    # Have we changed something?
     if request.method == 'POST':
+        # Are we editing or deleting?
         if route_edit_item_form.form_item_submit_edit.data:
+            # We're editing, change the values we collected from the db
             queried_item.item_name = route_edit_item_form.form_item_name.data
             queried_item.item_value = route_edit_item_form.form_item_value.data
             queried_item.item_boolean = route_edit_item_form.form_item_boolean.data
+            # tell the db and go back
             db.session.commit()
             return redirect(url_for('item',id=id))
         else:
+            # We're deleting.
             db.session.delete(queried_item)
             db.session.commit()
             return redirect(url_for('front'))
+    # These lines will populate the editing form with the queried data
     route_edit_item_form.form_item_name.data = queried_item.item_name
     route_edit_item_form.form_item_value.data = queried_item.item_value
     route_edit_item_form.form_item_boolean.data = queried_item.item_boolean
+    # Render the template!
     return render_template('edit.html',template_editItem_form = route_edit_item_form, template_pass_id = id)
     
 
 @app.route('/item/edititemattr/<int:attid>', methods = ['GET','POST'])
 def editattr(attid):
+    # need to set up the form and the query as they're needed in for 
+    # the update in the POST and also the render
     route_edit_item_form = ManipItem()
     queried_itemAttr = queryItemAttr(attid)
     if request.method == 'POST':
