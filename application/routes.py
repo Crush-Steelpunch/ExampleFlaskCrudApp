@@ -36,6 +36,37 @@ def front():
                             template_addItem_form = route_add_item_form
                             )
 
+
+
+@app.route('/item/<int:id>', methods = ['GET','POST'])
+def item(id):
+    # Add the form so it can be referenced for render and submit
+    route_add_itemAttributes_form = ManipItemAttributes()
+
+    if request.method == 'POST':
+        add_values_from_form = ItemAttributes(
+            itemAttr_name = route_add_itemAttributes_form.form_itemAttr_name.data,
+            itemAttr_value = route_add_itemAttributes_form.form_itemAttr_value.data,
+            itemAttr_boolean = route_add_itemAttributes_form.form_itemAttr_boolean.data,
+            item_id_ref = id
+        )
+        db.session.add(add_values_from_form)
+        db.session.commit()
+        # return the current page as a get and pass the initially passed id
+        return redirect(url_for('item',id=id))
+
+    # use id to query for attrs and the item
+    queried_item_attrs = ItemAttributes.query.filter_by(item_id_ref=id).all()
+    queried_item = queryItem(id)
+
+    # pass to jinja and render
+    return render_template(
+        'item.html', 
+        template_item=queried_item,
+        template_item_attrs=queried_item_attrs,
+        template_addItemAttr_form = route_add_itemAttributes_form
+        )
+
 @app.route('/item/edititem/<int:id>', methods = ['GET','POST','DELETE'])
 def edititem(id):
     # need to set up the form AND the query as they're needed in for 
@@ -72,7 +103,9 @@ def editattr(attid):
     # the update in the POST and also the render
     route_edit_item_form = ManipItem()
     queried_itemAttr = queryItemAttr(attid)
+    # Are we POSTING?
     if request.method == 'POST':
+        # Did we click Submit or Delete?
         if route_edit_item_form.form_item_submit_edit.data:
             queried_itemAttr.itemAttr_name = route_edit_item_form.form_item_name.data
             queried_itemAttr.itemAttr_value = route_edit_item_form.form_item_value.data
@@ -80,42 +113,16 @@ def editattr(attid):
             db.session.commit()
             return redirect(url_for('item',id=queried_itemAttr.item_id_ref))
         else:
+            # I'm going to be deleting this attribute but I want to return to the
+            # parent item, better grab that id_ref so I can pass it back to the return!
             item_id = queried_itemAttr.item_id_ref
+            # delete!
             db.session.delete(queried_itemAttr)
             db.session.commit()
             return redirect(url_for('item',id=item_id))
 
+    # These lines will populate the editing form with the queried data
     route_edit_item_form.form_item_name.data = queried_itemAttr.itemAttr_name
     route_edit_item_form.form_item_value.data = queried_itemAttr.itemAttr_value
     route_edit_item_form.form_item_boolean.data = queried_itemAttr.itemAttr_boolean
     return render_template('edit.html',template_editItem_form = route_edit_item_form, template_pass_id = queried_itemAttr.item_id_ref)
-
-
-@app.route('/item/<int:id>', methods = ['GET','POST'])
-def item(id):
-    # Add the form so it can be referenced for render and submit
-    route_add_itemAttributes_form = ManipItemAttributes()
-
-    if request.method == 'POST':
-        add_values_from_form = ItemAttributes(
-            itemAttr_name = route_add_itemAttributes_form.form_itemAttr_name.data,
-            itemAttr_value = route_add_itemAttributes_form.form_itemAttr_value.data,
-            itemAttr_boolean = route_add_itemAttributes_form.form_itemAttr_boolean.data,
-            item_id_ref = id
-        )
-        db.session.add(add_values_from_form)
-        db.session.commit()
-        # return the current page as a get and pass the initially passed id
-        return redirect(url_for('item',id=id))
-
-    # use id to query for attrs and the item
-    queried_item_attrs = ItemAttributes.query.filter_by(item_id_ref=id).all()
-    queried_item = queryItem(id)
-
-    # pass to jinja and render
-    return render_template(
-        'item.html', 
-        template_item=queried_item,
-        template_item_attrs=queried_item_attrs,
-        template_addItemAttr_form = route_add_itemAttributes_form
-        )
